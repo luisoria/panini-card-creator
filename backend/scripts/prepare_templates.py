@@ -43,8 +43,10 @@ TEXT_ZONES = [
 # Layouts que no siguen el patrón estándar (fracciones propias por equipo)
 TEAM_ZONES = {
     "venezuela": [
-        (0.150, 0.800, 0.700, 0.878),  # píldora grande: nombre + datos
-        (0.130, 0.900, 0.590, 0.938),  # franja inferior: posición/club
+        # Medido sobre los píxeles blancos del texto original (ver historial)
+        (0.150, 0.796, 0.700, 0.844),  # fila del nombre
+        (0.105, 0.845, 0.760, 0.889),  # fila de datos (más ancha)
+        (0.130, 0.905, 0.625, 0.954),  # franja inferior (antes del logo)
     ],
 }
 

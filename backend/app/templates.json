@@ -49,9 +49,9 @@
     "display_name": "Venezuela",
     "file": "venezuela.png",
     "layout": {
-      "name":  { "center_x": 0.430, "y": 0.802, "size": 0.044, "color": "#FFFFFF", "font": "name" },
-      "stats": { "center_x": 0.430, "y": 0.842, "size": 0.024, "color": "#FFFFFF", "font": "stats_bold" },
-      "club":  { "center_x": 0.365, "y": 0.905, "size": 0.023, "color": "#FFFFFF", "font": "stats_bold" }
+      "name":  { "center_x": 0.437, "y": 0.802, "size": 0.046, "color": "#FFFFFF", "font": "name" },
+      "stats": { "center_x": 0.435, "y": 0.852, "size": 0.028, "color": "#FFFFFF", "font": "stats_bold" },
+      "club":  { "center_x": 0.370, "y": 0.913, "size": 0.028, "color": "#FFFFFF", "font": "stats_bold" }
     }
   }
 }
