@@ -26,6 +26,9 @@ FILES = {
     f"{PREFIX} (3).webp": "brasil",
     f"{PREFIX} (4).webp": "colombia",
     f"{PREFIX}.webp": "portugal",
+    "venezuela.png": "venezuela",
+    "venezuela.webp": "venezuela",
+    "venezuela.jpg": "venezuela",
 }
 
 # Zonas de texto a borrar, en fracciones (x0, y0, x1, y1) del tamaño de la imagen.
@@ -36,6 +39,14 @@ TEXT_ZONES = [
     (0.235, 0.808, 0.655, 0.893),  # nombre + línea de datos (píldora grande)
     (0.210, 0.910, 0.605, 0.950),  # club (franja inferior, a la izq. del logo)
 ]
+
+# Layouts que no siguen el patrón estándar (fracciones propias por equipo)
+TEAM_ZONES = {
+    "venezuela": [
+        (0.150, 0.800, 0.700, 0.878),  # píldora grande: nombre + datos
+        (0.130, 0.900, 0.590, 0.938),  # franja inferior: posición/club
+    ],
+}
 
 
 def erase_zone(arr: np.ndarray, zone: tuple) -> None:
@@ -61,7 +72,7 @@ def main():
         img.save(RAW / f"{team}.png")
 
         arr = np.array(img)
-        for zone in TEXT_ZONES:
+        for zone in TEAM_ZONES.get(team, TEXT_ZONES):
             erase_zone(arr, zone)
         Image.fromarray(arr).save(OUT / f"{team}.png")
         print(f"[OK] {team}: raw + limpia ({img.size[0]}x{img.size[1]})")
