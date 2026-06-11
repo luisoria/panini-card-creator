@@ -115,3 +115,43 @@ cd frontend && npm install && npm run dev
 Si no quieres correr InsightFace localmente (CPU lenta / sin el .onnx), define
 `FACESWAP_PROVIDER=replicate` y `REPLICATE_API_TOKEN` en el entorno del backend.
 Ver `face_swap.py` para el punto de extensión.
+
+## Despliegue en EasyPanel
+
+Este proyecto está configurado para desplegarse automáticamente en EasyPanel:
+
+### Opción 1: Deploy automático (GitHub Actions)
+
+1. Configura secrets en GitHub:
+   - `EASYPANEL_REGISTRY`: URL del registry de EasyPanel
+   - `EASYPANEL_USERNAME`: Usuario del registry
+   - `EASYPANEL_PASSWORD`: Token del registry
+
+2. Haz push a `main` y el workflow desplegará automáticamente.
+
+### Opción 2: Deploy manual desde Git
+
+1. En EasyPanel, crea un nuevo proyecto
+2. Selecciona "Deploy from Git Repository"
+3. Conecta tu cuenta de GitHub
+4. Selecciona `luisoria/panini-card-creator`
+5. EasyPanel detectará el `docker-compose.yml` automáticamente
+6. Configura variables de entorno:
+   ```
+   FACESWAP_PROVIDER=insightface
+   # o
+   FACESWAP_PROVIDER=replicate
+   REPLICATE_API_TOKEN=tu_token
+   ```
+
+### Assets persistentes
+
+Los assets (plantillas, modelos, fuentes) deben ser volúmenes persistentes:
+```yaml
+volumes:
+  - templates:/app/backend/assets/templates
+  - models:/app/backend/assets/models
+  - fonts:/app/backend/assets/fonts
+```
+
+Configura estos volúmenes en EasyPanel como "Persistent Storage".
