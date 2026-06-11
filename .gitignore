@@ -9,12 +9,11 @@ node_modules/
 .next/
 out/
 
-# Assets pesados / con copyright — nunca al repo
-backend/assets/templates/*.png
-backend/assets/templates/raw/
+# Modelo pesado — nunca al repo (descargar en el servidor, ver README)
 backend/assets/models/*.onnx
-backend/assets/fonts/*.ttf
-backend/assets/fonts/*.otf
+# Originales sin limpiar (las limpias sí viajan para el deploy; repo PRIVADO:
+# contienen marcas de terceros, solo uso personal)
+backend/assets/templates/raw/
 
 # Misc
 .env

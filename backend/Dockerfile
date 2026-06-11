@@ -15,4 +15,5 @@ COPY scripts ./scripts
 # assets/ (plantillas, fuentes, modelo onnx) se monta como volumen — ver docker-compose.yml
 
 EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Descarga el modelo de face swap si falta (MODEL_URL) y arranca la API
+CMD ["sh", "-c", "python scripts/download_model.py; exec uvicorn app.main:app --host 0.0.0.0 --port 8000"]

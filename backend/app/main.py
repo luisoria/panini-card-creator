@@ -1,5 +1,6 @@
 """API del generador de tarjetas personalizadas."""
 import logging
+import os
 import re
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -14,9 +15,13 @@ logger = logging.getLogger("card-api")
 
 app = FastAPI(title="Card Creator API", version="1.0.0")
 
+# Orígenes permitidos configurables: CORS_ORIGINS=https://mi-dominio,https://otro
+_origins = os.getenv(
+    "CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
+).split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[o.strip() for o in _origins if o.strip()],
     allow_methods=["*"],
     allow_headers=["*"],
 )
