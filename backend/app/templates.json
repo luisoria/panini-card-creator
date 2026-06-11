@@ -1,0 +1,48 @@
+{
+  "_doc": "Coordenadas en fracciones (0-1) del ancho/alto de la plantilla. 'center_x' es el centro horizontal de la zona de texto (la píldora no está centrada: el bloque vertical del código de equipo ocupa la derecha). 'size' es fracción de la ALTURA de la imagen; 'y' es el borde superior del texto. Calibrado sobre escaneos de 1000x1000 px.",
+  "colombia": {
+    "display_name": "Colombia",
+    "file": "colombia.png",
+    "layout": {
+      "name":  { "center_x": 0.445, "y": 0.817, "size": 0.052, "color": "#FFFFFF", "font": "name" },
+      "stats": { "center_x": 0.445, "y": 0.863, "size": 0.028, "color": "#FFFFFF", "font": "stats_bold" },
+      "club":  { "center_x": 0.405, "y": 0.917, "size": 0.026, "color": "#FFFFFF", "font": "stats_bold" }
+    }
+  },
+  "brasil": {
+    "display_name": "Brasil",
+    "file": "brasil.png",
+    "layout": {
+      "name":  { "center_x": 0.445, "y": 0.817, "size": 0.052, "color": "#FFFFFF", "font": "name" },
+      "stats": { "center_x": 0.445, "y": 0.863, "size": 0.028, "color": "#FFFFFF", "font": "stats_bold" },
+      "club":  { "center_x": 0.405, "y": 0.917, "size": 0.026, "color": "#FFFFFF", "font": "stats_bold" }
+    }
+  },
+  "espana": {
+    "display_name": "España",
+    "file": "espana.png",
+    "layout": {
+      "name":  { "center_x": 0.445, "y": 0.817, "size": 0.052, "color": "#FFFFFF", "font": "name" },
+      "stats": { "center_x": 0.445, "y": 0.863, "size": 0.028, "color": "#FFFFFF", "font": "stats_bold" },
+      "club":  { "center_x": 0.405, "y": 0.917, "size": 0.026, "color": "#FFFFFF", "font": "stats_bold" }
+    }
+  },
+  "portugal": {
+    "display_name": "Portugal",
+    "file": "portugal.png",
+    "layout": {
+      "name":  { "center_x": 0.445, "y": 0.817, "size": 0.052, "color": "#FFFFFF", "font": "name" },
+      "stats": { "center_x": 0.445, "y": 0.863, "size": 0.028, "color": "#FFFFFF", "font": "stats_bold" },
+      "club":  { "center_x": 0.405, "y": 0.917, "size": 0.026, "color": "#FFFFFF", "font": "stats_bold" }
+    }
+  },
+  "marruecos": {
+    "display_name": "Marruecos",
+    "file": "marruecos.png",
+    "layout": {
+      "name":  { "center_x": 0.445, "y": 0.817, "size": 0.052, "color": "#FFFFFF", "font": "name" },
+      "stats": { "center_x": 0.445, "y": 0.863, "size": 0.028, "color": "#FFFFFF", "font": "stats_bold" },
+      "club":  { "center_x": 0.405, "y": 0.917, "size": 0.026, "color": "#FFFFFF", "font": "stats_bold" }
+    }
+  }
+}

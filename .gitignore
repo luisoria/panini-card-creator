@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node
+node_modules/
+.next/
+out/
+
+# Assets pesados / con copyright — nunca al repo
+backend/assets/templates/*.png
+backend/assets/templates/raw/
+backend/assets/models/*.onnx
+backend/assets/fonts/*.ttf
+backend/assets/fonts/*.otf
+
+# Misc
+.env
+.env.local
+.DS_Store

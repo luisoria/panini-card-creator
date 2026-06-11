@@ -1,0 +1,30 @@
+services:
+  backend:
+    build: ./backend
+    container_name: card-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Assets pesados se montan, no se hornean en la imagen
+      - ./backend/assets:/app/assets
+    environment:
+      - INSWAPPER_MODEL_PATH=/app/assets/models/inswapper_128.onnx
+      - FACESWAP_PROVIDER=insightface
+      # - FACESWAP_PROVIDER=replicate
+      # - REPLICATE_API_TOKEN=r8_xxx
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    container_name: card-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
