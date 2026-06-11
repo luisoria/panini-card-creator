@@ -1,6 +1,7 @@
 """Orquestación: plantilla limpia -> face swap -> texto -> PNG final."""
 import io
 import json
+import os
 from functools import lru_cache
 
 import cv2
@@ -57,8 +58,20 @@ def generate_card(team_id: str, user_photo_bytes: bytes, data: dict) -> bytes:
     if user_bgr is None:
         raise ValueError("La foto subida no es una imagen válida (usa JPG o PNG).")
 
-    # 3. Face swap — solo si el modelo está disponible
-    if _has_face_swap_model():
+    # 3. Reemplazo de rostro/cabeza según el modo configurado
+    swap_mode = os.getenv("SWAP_MODE", "face")
+    if swap_mode == "head":
+        # Cabeza completa (pelo + cuello) por composición con segmentación
+        from . import head_swap
+
+        swapped_bgr = head_swap.swap_head(template_bgr, user_bgr)
+        # Refinar el rostro interior con inswapper si el modelo está disponible
+        if _has_face_swap_model():
+            try:
+                swapped_bgr = face_swap.swap_face(swapped_bgr, user_bgr)
+            except Exception:
+                pass  # la composición ya lleva el rostro del usuario
+    elif _has_face_swap_model():
         swapped_bgr = face_swap.swap_face(template_bgr, user_bgr)
     else:
         swapped_bgr = template_bgr

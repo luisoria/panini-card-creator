@@ -11,6 +11,10 @@ services:
       - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN:-}
       - MODEL_URL=${MODEL_URL:-https://huggingface.co/ezioruan/inswapper_128.onnx/resolve/main/inswapper_128.onnx}
       - CORS_ORIGINS=${CORS_ORIGINS:-https://open-gravity-panini-card-creator.ogouws.easypanel.host,http://localhost:3000}
+      # "head": cabeza completa (pelo+cuello) | "face": solo rostro interior
+      - SWAP_MODE=${SWAP_MODE:-head}
+      # El modelo de segmentación (u2net) también persiste en el volumen
+      - U2NET_HOME=/app/assets/models/u2net
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
       interval: 30s
