@@ -32,7 +32,12 @@ def _get_models():
     from insightface.app import FaceAnalysis
     from insightface.model_zoo import get_model
 
-    analyzer = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
+    # root en el volumen persistente: buffalo_l no se re-descarga en cada deploy
+    analyzer = FaceAnalysis(
+        name="buffalo_l",
+        root=str(config.MODELS_DIR / "insightface"),
+        providers=["CPUExecutionProvider"],
+    )
     analyzer.prepare(ctx_id=0, det_size=(640, 640))
 
     swapper = get_model(config.INSWAPPER_MODEL_PATH, providers=["CPUExecutionProvider"])

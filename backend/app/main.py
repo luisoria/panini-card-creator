@@ -29,6 +29,27 @@ app.add_middleware(
 DATE_RE = re.compile(r"^\d{1,2}-\d{1,2}-\d{4}$")
 
 
+@app.on_event("startup")
+def warmup_models():
+    """Precarga los modelos en segundo plano: el primer usuario tras un
+    deploy no debe pagar el arranque en frío (causaba 504 del proxy)."""
+    import threading
+
+    def _load():
+        try:
+            from .services.head_swap import _rembg_session
+
+            _rembg_session()
+            from .services.face_swap import _get_models
+
+            _get_models()
+            logger.info("Modelos precargados y listos.")
+        except Exception:
+            logger.warning("Precarga de modelos incompleta.", exc_info=True)
+
+    threading.Thread(target=_load, daemon=True).start()
+
+
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
