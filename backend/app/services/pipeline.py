@@ -58,7 +58,25 @@ def generate_card(team_id: str, user_photo_bytes: bytes, data: dict) -> bytes:
     if user_bgr is None:
         raise ValueError("La foto subida no es una imagen válida (usa JPG o PNG).")
 
-    # 3. Reemplazo de rostro/cabeza según el modo configurado
+    # 3. Reemplazo de rostro/cabeza según proveedor y modo configurados
+    if os.getenv("FACESWAP_PROVIDER", "") == "gemini" and os.getenv("GEMINI_API_KEY", "").strip():
+        # Modelo generativo en la nube; si falla, cae al compositor local
+        import logging
+
+        from . import gemini_swap
+
+        try:
+            swapped_bgr = gemini_swap.swap(template_bgr, user_bgr)
+            img = Image.fromarray(cv2.cvtColor(swapped_bgr, cv2.COLOR_BGR2RGB))
+            img = text_renderer.render_card_text(img, data, meta[team_id]["layout"])
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            return buf.getvalue()
+        except Exception:
+            logging.getLogger(__name__).warning(
+                "Gemini falló; usando compositor local", exc_info=True
+            )
+
     swap_mode = os.getenv("SWAP_MODE", "face")
     if swap_mode == "head":
         # Cabeza completa (pelo + cuello) por composición con segmentación

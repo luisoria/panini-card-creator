@@ -13,6 +13,9 @@ services:
       - CORS_ORIGINS=${CORS_ORIGINS:-https://open-gravity-panini-card-creator.ogouws.easypanel.host,http://localhost:3000}
       # "head": cabeza completa (pelo+cuello) | "face": solo rostro interior
       - SWAP_MODE=${SWAP_MODE:-head}
+      # Proveedor generativo en la nube (FACESWAP_PROVIDER=gemini + API key)
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_IMAGE_MODEL=${GEMINI_IMAGE_MODEL:-gemini-2.5-flash-image}
       # El modelo de segmentación (u2net) también persiste en el volumen
       - U2NET_HOME=/app/assets/models/u2net
     healthcheck:
