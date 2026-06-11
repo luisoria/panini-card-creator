@@ -9,8 +9,8 @@ services:
       - INSWAPPER_MODEL_PATH=/app/assets/models/inswapper_128.onnx
       - FACESWAP_PROVIDER=${FACESWAP_PROVIDER:-insightface}
       - REPLICATE_API_TOKEN=${REPLICATE_API_TOKEN:-}
-      - MODEL_URL=${MODEL_URL:-}
-      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - MODEL_URL=${MODEL_URL:-https://huggingface.co/ezioruan/inswapper_128.onnx/resolve/main/inswapper_128.onnx}
+      - CORS_ORIGINS=${CORS_ORIGINS:-https://open-gravity-panini-card-creator.ogouws.easypanel.host,http://localhost:3000}
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
       interval: 30s
@@ -23,7 +23,7 @@ services:
       context: ./frontend
       args:
         # URL PÚBLICA del backend (la usa el navegador, no la red interna de Docker)
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://panini-api.ogouws.easypanel.host}
     depends_on:
       - backend
 
