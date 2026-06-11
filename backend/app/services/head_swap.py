@@ -24,9 +24,11 @@ logger = logging.getLogger(__name__)
 # Proporciones relativas al alto del rostro detectado (ajustables)
 HAIR_MARGIN = 1.10      # espacio sobre el rostro para incluir el pelo
 SIDE_MARGIN = 0.75      # espacio lateral (orejas / pelo)
-NECK_LENGTH = 0.55      # cuánto cuello conservar bajo la barbilla
-NECK_FADE = 0.25        # tramo final del cuello con desvanecido alfa
-COLLAR_LINE = 0.32      # dónde empieza la camiseta bajo la barbilla (plantilla)
+NECK_LENGTH = 0.42      # cuánto cuello conservar bajo la barbilla
+NECK_FADE = 0.30        # tramo final del cuello con desvanecido alfa
+NECK_HALF_W = 0.32      # semiancho de la columna de cuello (x ancho de rostro)
+COLLAR_LINE = 0.30      # dónde empieza la camiseta bajo la barbilla (plantilla)
+SKIN_DELTA = 26.0       # distancia Lab máx. para considerar un píxel "piel"
 
 
 @lru_cache(maxsize=1)
@@ -91,6 +93,16 @@ def _cut_user_head(user_bgr: np.ndarray, uf: dict) -> tuple:
     crop = user_bgr[y1:neck_end, x1:x2].copy()
     a = alpha[y1:neck_end, x1:x2].astype(np.float32)
 
+    # Bajo la barbilla, conservar SOLO la columna del cuello: fuera quedan
+    # hombros y ropa de la foto origen (causa clásica de "montaje" visible)
+    chin_row = int(max(0, uf["y2"] - y1))
+    if chin_row < a.shape[0]:
+        cx = (uf["x1"] + uf["x2"]) / 2 - x1
+        xs = np.arange(a.shape[1], dtype=np.float32)
+        soft = 0.18 * uf["w"]
+        band = np.clip((NECK_HALF_W * uf["w"] + soft - np.abs(xs - cx)) / soft, 0, 1)
+        a[chin_row:] *= band[None, :]
+
     # Desvanecer el tramo final del cuello para fundir con la camiseta
     fade_px = max(2, int(NECK_FADE * uf["h"]))
     ramp = np.linspace(1.0, 0.0, fade_px)[:, None]
@@ -100,6 +112,36 @@ def _cut_user_head(user_bgr: np.ndarray, uf: dict) -> tuple:
     a = cv2.GaussianBlur(a, (7, 7), 0)
     anchor = (uf["anchor"][0] - x1, uf["anchor"][1] - y1)
     return crop, a, anchor
+
+
+def _skin_lab(img_bgr: np.ndarray, box: dict) -> np.ndarray:
+    """Color medio de piel (Lab) en el interior del rostro detectado."""
+    x1, y1 = int(box["x1"] + 0.25 * box["w"]), int(box["y1"] + 0.35 * box["h"])
+    x2, y2 = int(box["x2"] - 0.25 * box["w"]), int(box["y2"] - 0.15 * box["h"])
+    patch = img_bgr[max(0, y1):y2, max(0, x1):x2]
+    lab = cv2.cvtColor(patch, cv2.COLOR_BGR2LAB).reshape(-1, 3).astype(np.float32)
+    return np.median(lab, axis=0)
+
+
+def _match_head_luminance(head: np.ndarray, u_skin: np.ndarray,
+                          t_skin: np.ndarray, weight: float = 0.65) -> np.ndarray:
+    """Acerca la luminancia de la cabeza a la de la tarjeta sin alterar el tono."""
+    lab = cv2.cvtColor(head, cv2.COLOR_BGR2LAB).astype(np.float32)
+    lab[:, :, 0] += weight * (t_skin[0] - u_skin[0])
+    return cv2.cvtColor(np.clip(lab, 0, 255).astype(np.uint8), cv2.COLOR_LAB2BGR)
+
+
+def _recolor_template_skin(template_bgr: np.ndarray, t_skin: np.ndarray,
+                           u_skin: np.ndarray) -> np.ndarray:
+    """Desplaza la piel expuesta de la plantilla (pecho/cuello del jugador en
+    la "V" de la camiseta) hacia el tono de piel del usuario."""
+    lab = cv2.cvtColor(template_bgr, cv2.COLOR_BGR2LAB).astype(np.float32)
+    dist = np.linalg.norm(lab - t_skin[None, None, :], axis=2)
+    w = np.clip(1.0 - dist / SKIN_DELTA, 0, 1)
+    w = cv2.GaussianBlur(w, (9, 9), 0)[..., None]
+    shifted = lab + (u_skin - t_skin)[None, None, :]
+    lab = shifted * w + lab * (1 - w)
+    return cv2.cvtColor(np.clip(lab, 0, 255).astype(np.uint8), cv2.COLOR_LAB2BGR)
 
 
 def _remove_template_head(template_bgr: np.ndarray, tf: dict) -> np.ndarray:
@@ -122,6 +164,12 @@ def swap_head(template_bgr: np.ndarray, user_bgr: np.ndarray) -> np.ndarray:
 
     head, head_a, anchor = _cut_user_head(user_bgr, uf)
     clean_bg, t_alpha = _remove_template_head(template_bgr, tf)
+
+    # Integración de color: luz de la tarjeta sobre la cabeza, y piel del
+    # jugador (pecho en la "V") hacia el tono del usuario
+    u_skin, t_skin = _skin_lab(user_bgr, uf), _skin_lab(template_bgr, tf)
+    head = _match_head_luminance(head, u_skin, t_skin)
+    body_source = _recolor_template_skin(template_bgr, t_skin, u_skin)
 
     # Escalar para que el rostro del usuario mida lo mismo que el del jugador
     scale = tf["w"] / uf["w"]
@@ -146,10 +194,11 @@ def swap_head(template_bgr: np.ndarray, user_bgr: np.ndarray) -> np.ndarray:
     out[dy1:dy2, dx1:dx2] = region * region_a + out[dy1:dy2, dx1:dx2] * (1 - region_a)
 
     # Restaurar la camiseta encima para "meter" el cuello nuevo en la franela
+    # (usando la versión con la piel del jugador re-coloreada al tono del usuario)
     collar_y = int(tf["y2"] + COLLAR_LINE * tf["h"])
     body_mask = np.zeros((H, W), np.float32)
     body_mask[collar_y:] = (t_alpha[collar_y:] > 100).astype(np.float32)
     body_mask = cv2.GaussianBlur(body_mask, (11, 11), 0)[..., None]
-    out = template_bgr.astype(np.float32) * body_mask + out * (1 - body_mask)
+    out = body_source.astype(np.float32) * body_mask + out * (1 - body_mask)
 
     return np.clip(out, 0, 255).astype(np.uint8)
