@@ -24,8 +24,9 @@ logger = logging.getLogger(__name__)
 # Proporciones relativas al alto del rostro detectado (ajustables)
 HAIR_MARGIN = 1.10      # espacio sobre el rostro para incluir el pelo
 SIDE_MARGIN = 0.75      # espacio lateral (orejas / pelo)
-NECK_LENGTH = 0.42      # cuánto cuello conservar bajo la barbilla
-NECK_FADE = 0.30        # tramo final del cuello con desvanecido alfa
+NECK_LENGTH = 0.58      # cuánto cuello conservar bajo la barbilla
+NECK_FADE = 0.16        # tramo final con desvanecido; debe iniciar DEBAJO de
+                        # COLLAR_LINE para que el fundido quede bajo la camiseta
 NECK_HALF_W = 0.32      # semiancho de la columna de cuello (x ancho de rostro)
 COLLAR_LINE = 0.30      # dónde empieza la camiseta bajo la barbilla (plantilla)
 SKIN_DELTA = 26.0       # distancia Lab máx. para considerar un píxel "piel"
